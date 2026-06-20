@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
@@ -234,10 +234,150 @@
     .btn-prev { background: #e2e8f0; color: #4a5568; }
     .btn-next { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; }
 
+    /* ---- Result Screen ---- */
+    #screen-result { display: none; }
+    .result-summary {
+      text-align: center;
+      padding: 8px 0 28px;
+      border-bottom: 1.5px solid #e2e8f0;
+      margin-bottom: 24px;
+    }
+    .result-summary h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 12px;
+    }
+    .score-row {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .score-box {
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 24px;
+      min-width: 100px;
+    }
+    .score-box .score-num {
+      font-size: 2rem;
+      font-weight: 700;
+      display: block;
+      line-height: 1;
+    }
+    .score-box .score-label {
+      font-size: 0.8rem;
+      color: #718096;
+      margin-top: 4px;
+      display: block;
+    }
+    .score-box.green { border-color: #16a34a; background: #f0fdf4; }
+    .score-box.green .score-num { color: #16a34a; }
+    .score-box.red   { border-color: #dc2626; background: #fef2f2; }
+    .score-box.red   .score-num { color: #dc2626; }
+    .score-box.blue  { border-color: #4f46e5; background: #eef2ff; }
+    .score-box.blue  .score-num { color: #4f46e5; }
+    .result-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-action {
+      padding: 10px 22px;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity .2s, transform .1s;
+    }
+    .btn-action:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-action.primary { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: #fff; }
+    .btn-action.secondary { background: #e2e8f0; color: #4a5568; }
+    .btn-action.warning { background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; }
+
+    .wrong-list-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #b91c1c;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .wrong-item {
+      background: #fef2f2;
+      border: 1.5px solid #fca5a5;
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+    }
+    .wrong-item-header {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #9ca3af;
+      margin-bottom: 8px;
+      letter-spacing: .04em;
+    }
+    .wrong-item-question {
+      font-size: 0.97rem;
+      font-weight: 600;
+      color: #1a202c;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    .wrong-item-options {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .wrong-opt {
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border: 1.5px solid transparent;
+      line-height: 1.4;
+    }
+    .wrong-opt.was-chosen {
+      background: #fef2f2;
+      border-color: #dc2626;
+      color: #b91c1c;
+    }
+    .wrong-opt.is-correct {
+      background: #f0fdf4;
+      border-color: #16a34a;
+      color: #15803d;
+      font-weight: 700;
+    }
+    .wrong-opt.neutral {
+      background: #f8fafc;
+      border-color: #e2e8f0;
+      color: #4a5568;
+    }
+    .retry-mode-banner {
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      text-align: center;
+      display: none;
+    }
+
     @media (max-width: 500px) {
       .card { padding: 20px 16px; }
       .app-title h1 { font-size: 1.35rem; }
       .question-text { font-size: 1rem; }
+      .score-box { padding: 10px 16px; min-width: 80px; }
+      .score-box .score-num { font-size: 1.6rem; }
     }
   </style>
 </head>
@@ -270,8 +410,39 @@
     </div>
   </div>
 
+  <!-- SCREEN 3: Result -->
+  <div class="card" id="screen-result">
+    <div class="result-summary">
+      <h2>🏁 Kết quả ôn tập</h2>
+      <div class="score-row">
+        <div class="score-box blue">
+          <span class="score-num" id="res-total">0</span>
+          <span class="score-label">Tổng câu</span>
+        </div>
+        <div class="score-box green">
+          <span class="score-num" id="res-correct">0</span>
+          <span class="score-label">Đúng ✅</span>
+        </div>
+        <div class="score-box red">
+          <span class="score-num" id="res-wrong">0</span>
+          <span class="score-label">Sai ❌</span>
+        </div>
+      </div>
+      <div class="result-actions">
+        <button class="btn-action warning" id="btn-retry-wrong">🔁 Làm lại câu sai</button>
+        <button class="btn-action primary" id="btn-redo-all">↺ Làm lại toàn bộ</button>
+        <button class="btn-action secondary" id="btn-home">🏠 Chọn lại môn</button>
+      </div>
+    </div>
+    <div id="wrong-section">
+      <div class="wrong-list-title">❌ Các câu trả lời sai — xem lại để ghi nhớ</div>
+      <div id="wrong-list"></div>
+    </div>
+  </div>
+
   <!-- SCREEN 2: Quiz -->
   <div class="card" id="screen-quiz">
+    <div class="retry-mode-banner" id="retry-banner">🔁 Chế độ làm lại câu sai</div>
     <div class="quiz-header">
       <span class="quiz-counter" id="quiz-counter">Câu hỏi 1 / 50</span>
       <button class="btn-back" id="btn-back">↩ Chọn lại môn/phân đoạn</button>
@@ -300,26 +471,36 @@ const SUBJECTS = {
 };
 
 // ─── STATE ──────────────────────────────────────────────────
-let currentSlice = [];
-let currentIndex = 0;
-let answers = {}; // { localIndex: { chosen: 'B', correct: 'B', locked: true } }
+let currentSlice   = [];
+let currentIndex   = 0;
+let answers        = {}; // { localIndex: { chosen: 'B', correct: 'B', locked: true } }
+let isRetryMode    = false; // đang làm lại câu sai hay không
 
 // ─── DOM REFS ───────────────────────────────────────────────
-const subjectSelect = document.getElementById('subject-select');
-const totalBadge    = document.getElementById('total-badge');
-const fromQ         = document.getElementById('from-q');
-const toQ           = document.getElementById('to-q');
-const btnStart      = document.getElementById('btn-start');
-const screenSetup   = document.getElementById('screen-setup');
-const screenQuiz    = document.getElementById('screen-quiz');
-const quizCounter   = document.getElementById('quiz-counter');
-const progressFill  = document.getElementById('progress-fill');
-const questionText  = document.getElementById('question-text');
-const optionsList   = document.getElementById('options-list');
-const feedbackText  = document.getElementById('feedback-text');
-const btnPrev       = document.getElementById('btn-prev');
-const btnNext       = document.getElementById('btn-next');
-const btnBack       = document.getElementById('btn-back');
+const subjectSelect  = document.getElementById('subject-select');
+const totalBadge     = document.getElementById('total-badge');
+const fromQ          = document.getElementById('from-q');
+const toQ            = document.getElementById('to-q');
+const btnStart       = document.getElementById('btn-start');
+const screenSetup    = document.getElementById('screen-setup');
+const screenQuiz     = document.getElementById('screen-quiz');
+const screenResult   = document.getElementById('screen-result');
+const quizCounter    = document.getElementById('quiz-counter');
+const progressFill   = document.getElementById('progress-fill');
+const questionText   = document.getElementById('question-text');
+const optionsList    = document.getElementById('options-list');
+const feedbackText   = document.getElementById('feedback-text');
+const btnPrev        = document.getElementById('btn-prev');
+const btnNext        = document.getElementById('btn-next');
+const btnBack        = document.getElementById('btn-back');
+const retryBanner    = document.getElementById('retry-banner');
+const resTotal       = document.getElementById('res-total');
+const resCorrect     = document.getElementById('res-correct');
+const resWrong       = document.getElementById('res-wrong');
+const wrongList      = document.getElementById('wrong-list');
+const btnRetryWrong  = document.getElementById('btn-retry-wrong');
+const btnRedoAll     = document.getElementById('btn-redo-all');
+const btnHome        = document.getElementById('btn-home');
 
 // ─── INIT SELECT ────────────────────────────────────────────
 function initSelect() {
@@ -347,6 +528,17 @@ function updateBadge() {
 subjectSelect.addEventListener('change', updateBadge);
 
 // ─── START ──────────────────────────────────────────────────
+function startQuiz(slice) {
+  currentSlice = slice;
+  currentIndex = 0;
+  answers      = {};
+  screenSetup.style.display   = 'none';
+  screenResult.style.display  = 'none';
+  screenQuiz.style.display    = 'block';
+  retryBanner.style.display   = isRetryMode ? 'block' : 'none';
+  renderQuestion();
+}
+
 btnStart.addEventListener('click', () => {
   const key = subjectSelect.value;
   const subjectData = SUBJECTS[key]?.data ?? [];
@@ -361,20 +553,16 @@ btnStart.addEventListener('click', () => {
   from = Math.max(1, Math.min(from, subjectData.length));
   to   = Math.max(from, Math.min(to, subjectData.length));
 
-  // Slice by position (1-indexed)
-  currentSlice = subjectData.slice(from - 1, to);
-  currentIndex = 0;
-  answers = {};
-
-  screenSetup.style.display = 'none';
-  screenQuiz.style.display  = 'block';
-  renderQuestion();
+  isRetryMode = false;
+  startQuiz(subjectData.slice(from - 1, to));
 });
 
 // ─── BACK ───────────────────────────────────────────────────
 btnBack.addEventListener('click', () => {
-  screenQuiz.style.display  = 'none';
-  screenSetup.style.display = 'block';
+  screenQuiz.style.display   = 'none';
+  screenResult.style.display = 'none';
+  screenSetup.style.display  = 'block';
+  isRetryMode = false;
 });
 
 // ─── RENDER QUESTION ────────────────────────────────────────
@@ -463,11 +651,84 @@ btnNext.addEventListener('click', () => {
     currentIndex++;
     renderQuestion();
   } else {
-    // End of quiz
-    const correct = Object.values(answers).filter(a => a.chosen === a.correct).length;
-    const answered = Object.keys(answers).length;
-    alert(`🏁 Hoàn thành!\n\nĐã trả lời: ${answered}/${currentSlice.length} câu\nĐúng: ${correct} câu\nSai: ${answered - correct} câu\n\nChúc mừng bạn đã hoàn thành phân đoạn này!`);
+    // End of quiz → show result screen
+    showResult();
   }
+});
+
+// ─── SHOW RESULT ────────────────────────────────────────────
+function showResult() {
+  const allAnswers = Object.entries(answers); // [[index, {chosen, correct}], ...]
+  const correctCount = allAnswers.filter(([, a]) => a.chosen === a.correct).length;
+  const wrongCount   = allAnswers.filter(([, a]) => a.chosen !== a.correct).length;
+  const total        = currentSlice.length;
+
+  // Update score boxes
+  resTotal.textContent   = total;
+  resCorrect.textContent = correctCount;
+  resWrong.textContent   = wrongCount;
+
+  // Build wrong list
+  wrongList.innerHTML = '';
+  if (wrongCount === 0) {
+    document.getElementById('wrong-section').innerHTML =
+      '<div style="text-align:center;padding:24px 0;color:#16a34a;font-weight:700;font-size:1.05rem;">🎉 Tuyệt vời! Bạn trả lời đúng tất cả các câu!</div>';
+    btnRetryWrong.style.display = 'none';
+  } else {
+    document.getElementById('wrong-section').querySelector('.wrong-list-title') &&
+      (document.getElementById('wrong-section').innerHTML =
+        `<div class="wrong-list-title">❌ ${wrongCount} câu trả lời sai — xem lại để ghi nhớ</div>` +
+        '<div id="wrong-list"></div>');
+    const wl = document.getElementById('wrong-list');
+    allAnswers.forEach(([idxStr, a]) => {
+      if (a.chosen === a.correct) return;
+      const idx = parseInt(idxStr, 10);
+      const q   = currentSlice[idx];
+      const div = document.createElement('div');
+      div.className = 'wrong-item';
+      let optsHtml = q.options.map(opt => {
+        const letter = opt.trim().charAt(0);
+        let cls = 'neutral';
+        if (letter === a.correct) cls = 'is-correct';
+        else if (letter === a.chosen) cls = 'was-chosen';
+        return `<div class="wrong-opt ${cls}">${escapeHtml(opt)}${letter === a.correct ? ' ✅' : ''}${letter === a.chosen ? ' ❌' : ''}</div>`;
+      }).join('');
+      div.innerHTML = `
+        <div class="wrong-item-header">Câu ${q.id}</div>
+        <div class="wrong-item-question">${escapeHtml(q.cau_hoi)}</div>
+        <div class="wrong-item-options">${optsHtml}</div>`;
+      wl.appendChild(div);
+    });
+    btnRetryWrong.style.display = '';
+  }
+
+  screenQuiz.style.display   = 'none';
+  screenResult.style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ─── RESULT BUTTONS ─────────────────────────────────────────
+// Làm lại chỉ câu sai
+btnRetryWrong.addEventListener('click', () => {
+  const wrongSlice = Object.entries(answers)
+    .filter(([, a]) => a.chosen !== a.correct)
+    .map(([idx]) => currentSlice[parseInt(idx, 10)]);
+  if (!wrongSlice.length) return;
+  isRetryMode = true;
+  startQuiz(wrongSlice);
+});
+
+// Làm lại toàn bộ phân đoạn
+btnRedoAll.addEventListener('click', () => {
+  isRetryMode = false;
+  startQuiz([...currentSlice]);
+});
+
+// Về màn hình chọn môn
+btnHome.addEventListener('click', () => {
+  screenResult.style.display = 'none';
+  screenSetup.style.display  = 'block';
+  isRetryMode = false;
 });
 
 // ─── HELPERS ────────────────────────────────────────────────
